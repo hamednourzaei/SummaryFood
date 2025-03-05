@@ -1,20 +1,31 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, ChangeEvent, MouseEvent } from 'react';
 import Image from 'next/image';
 
 import classes from './image-picker.module.css';
 
-export default function ImagePicker({ label, name }) {
-  const [pickedImage, setPickedImage] = useState();
-  const imageInput = useRef();
+// تعریف اینترفیس برای تایپ‌های ورودی کامپوننت
+interface ImagePickerProps {
+  label: string;
+  name: string;
+}
 
-  function handlePickClick() {
-    imageInput.current.click();
+export default function ImagePicker({ label, name }: ImagePickerProps) {
+  // تعیین نوع state به صورت string یا null
+  const [pickedImage, setPickedImage] = useState<string | null>(null);
+  // تعیین نوع ref به صورت HTMLInputElement یا null
+  const imageInput = useRef<HTMLInputElement | null>(null);
+
+  // تابع برای مدیریت کلیک بر روی دکمه انتخاب تصویر
+  function handlePickClick(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    imageInput.current?.click();
   }
 
-  function handleImageChange(event) {
-    const file = event.target.files[0];
+  // تابع برای مدیریت تغییر فایل ورودی
+  function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
 
     if (!file) {
       setPickedImage(null);
@@ -24,7 +35,7 @@ export default function ImagePicker({ label, name }) {
     const fileReader = new FileReader();
 
     fileReader.onload = () => {
-      setPickedImage(fileReader.result);
+      setPickedImage(fileReader.result as string);
     };
 
     fileReader.readAsDataURL(file);
